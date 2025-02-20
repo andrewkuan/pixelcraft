@@ -10,7 +10,7 @@ app.use(cors());
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
     methods: ['GET', 'POST'],
   },
 });
@@ -48,6 +48,11 @@ io.on('connection', (socket) => {
     activeUsers.delete(socket.id);
     io.emit('users', Array.from(activeUsers.values()));
   });
+});
+
+// Add a health check endpoint
+app.get('/', (req, res) => {
+  res.send('Socket.io server is running');
 });
 
 const PORT = process.env.PORT || 3001;
