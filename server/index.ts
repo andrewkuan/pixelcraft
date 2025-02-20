@@ -2,7 +2,7 @@ import { Server } from 'socket.io';
 import { createServer } from 'http';
 import express from 'express';
 import cors from 'cors';
-import { PixelUpdate, UserPresence } from '../src/types/canvas';
+import { PixelUpdate, UserPresence } from './types';
 
 const app = express();
 app.use(cors());
