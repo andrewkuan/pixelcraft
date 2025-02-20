@@ -13,24 +13,11 @@ FROM base AS builder
 WORKDIR /app
 
 # Add build-time variables
-ARG GITHUB_ID
-ARG GITHUB_SECRET
-ARG NEXTAUTH_URL
-ARG NEXTAUTH_SECRET
-ARG DATABASE_URL
-
-ENV GITHUB_ID=${GITHUB_ID}
-ENV GITHUB_SECRET=${GITHUB_SECRET}
-ENV NEXTAUTH_URL=${NEXTAUTH_URL}
-ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-ENV DATABASE_URL=${DATABASE_URL}
+ARG NEXT_PUBLIC_SOCKET_URL
+ENV NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL}
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Generate Prisma Client
-COPY prisma ./prisma
-RUN npx prisma generate
 
 # Disable telemetry during the build
 ENV NEXT_TELEMETRY_DISABLED 1
@@ -45,24 +32,13 @@ ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # Add runtime environment variables
-ARG GITHUB_ID
-ARG GITHUB_SECRET
-ARG NEXTAUTH_URL
-ARG NEXTAUTH_SECRET
-ARG DATABASE_URL
-
-ENV GITHUB_ID=${GITHUB_ID}
-ENV GITHUB_SECRET=${GITHUB_SECRET}
-ENV NEXTAUTH_URL=${NEXTAUTH_URL}
-ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-ENV DATABASE_URL=${DATABASE_URL}
+ARG NEXT_PUBLIC_SOCKET_URL
+ENV NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL}
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
