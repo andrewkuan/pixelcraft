@@ -17,26 +17,30 @@ const handler = NextAuth({
       clientSecret: process.env.GITHUB_SECRET,
     }),
   ],
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   callbacks: {
-    session: async ({ session, user }) => {
+    session: async ({ session, token }) => {
       if (session?.user) {
-        session.user.id = user.id;
+        session.user.id = token.sub as string;
       }
       return session;
     },
-  },
-  debug: true,
-  logger: {
-    error: (code, metadata) => {
-      console.error('NEXTAUTH_ERROR:', code, metadata);
-    },
-    warn: (code) => {
-      console.warn('NEXTAUTH_WARN:', code);
-    },
-    debug: (code, metadata) => {
-      console.log('NEXTAUTH_DEBUG:', code, metadata);
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.sub = user.id;
+      }
+      return token;
     },
   },
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/error',
+    signOut: '/',
+  },
+  debug: process.env.NODE_ENV === 'development',
 });
 
 export { handler as GET, handler as POST }; 

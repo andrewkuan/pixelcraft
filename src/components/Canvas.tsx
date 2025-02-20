@@ -1,13 +1,13 @@
+'use client';
+
 import { useEffect, useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { io, Socket } from 'socket.io-client';
-import useCanvasStore from '../store/canvasStore';
-import { PixelUpdate, UserPresence } from '../types/canvas';
+import useCanvasStore from '@/store/canvasStore';
+import { PixelUpdate } from '@/types/canvas';
 
 const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
-  const { data: session } = useSession();
   
   const {
     pixels,
@@ -23,16 +23,8 @@ const Canvas = () => {
 
   // Initialize socket connection
   useEffect(() => {
-    if (!session?.user) return;
-
     const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001');
     setSocket(newSocket);
-
-    newSocket.emit('join', {
-      id: session.user.id,
-      name: session.user.name || 'Anonymous',
-      color: color
-    });
 
     newSocket.on('pixelUpdate', (update: PixelUpdate) => {
       setPixel(update.x, update.y, update.color);
@@ -41,7 +33,7 @@ const Canvas = () => {
     return () => {
       newSocket.disconnect();
     };
-  }, [session]);
+  }, []);
 
   // Draw function
   const draw = () => {
@@ -84,7 +76,7 @@ const Canvas = () => {
 
   // Handle drawing
   const handleDraw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!socket || !session?.user) return;
+    if (!socket) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -99,7 +91,7 @@ const Canvas = () => {
       x,
       y,
       color: tool === 'eraser' ? '' : color,
-      userId: session.user.id
+      userId: 'anonymous'
     };
 
     setPixel(x, y, update.color);
