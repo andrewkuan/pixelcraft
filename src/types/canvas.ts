@@ -30,6 +30,8 @@ export interface CanvasState {
   color: string;
   brushSize: number;
   showGrid: boolean;
+  history: Record<string, string>[];
+  historyIndex: number;
 }
 
 export interface ArtworkData {
